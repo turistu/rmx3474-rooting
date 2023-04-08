@@ -28,7 +28,7 @@ my %cfg = (
 
 	client_id => '000000000000000',
 	sso_id => 0,
-	rpmodel => 'bananaphone',	# ro.product.model [RMX3474]
+	rpmodel => 'RMX3461',		# ro.product.model [RMX3474]
 	os_version => 'V1.0.0',		# ro.build_bak.version.opporom
 	rom_version => '',		# ro.build_bak.display.id
 	android_version => 31,		# Build.VERSION_SDK_INT [31]
@@ -128,11 +128,13 @@ sub query {
 	die "post($cfg{url}$cfg{cmd}): ", $rsp->status_line, "\n"
 		unless $rsp->is_success;
 	my $d = $rsp->decoded_content;
-	warn "response\t", $d, "\n" if $verbose;
+	warn "response\t$d\n" if $verbose;
 	if($d =~ /^\s*\{\s*"resps"\s*:\s*"(.*)"\s*\}$/){
 		$d = decrypt_data($1);
 		# warn "\n$d\n" if $verbose;
 		print "$d\n";
+	}else{
+		die "unexpected response from $cfg{url}$cfg{cmd}\n$d\n";
 	}
 }
 sub response {
