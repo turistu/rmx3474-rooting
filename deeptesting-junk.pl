@@ -73,6 +73,8 @@ sub params_key {
 	my @junk = ("oppo1997", "baed2017", "java7865", "231uiedn",
 		"09e32ji6", "0oiu3jdy", "0pej387l", "2dkliuyt",
 		"20odiuye", "87j3id7w");
+	# NB: it's not only us: their server-side code will also
+	# treat any non-digit byte at the start of $random as '0' ;-)
 	$junk[substr $random, 0, 1].substr($random, 4, 8);
 }
 sub mk_data {
