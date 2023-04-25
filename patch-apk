@@ -1,5 +1,5 @@
 #! /bin/sh
-sdk_tools=/k/v/android-sdk/build-tools/33.0.0/
+sdk_tools=/path-to-android-sdk/build-tools/33.0.0/
 android(){ PATH=$sdk_tools:$PATH "$@"; }
 tmpdir=$(mktemp -u)
 keystore=$tmpdir/keystore

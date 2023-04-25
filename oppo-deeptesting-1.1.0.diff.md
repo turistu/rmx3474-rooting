@@ -1,27 +1,36 @@
 For the Oppo deeptesting 1.1.0 app, the fields from the json data of
 the request are as follows:
-
+```
 model			ro.product.name
 udid			IMEI 1
-chipId			read /proc/oppoVersion/serialID
+chipId			/proc/oppoVersion/serialID
 otaVersion		ro.build.version.ota
 clientLockStatus	0
 operator		ro.oppo.operator
+```
+**I don't know yet if the same or similar trick to that from realme
+could be used here too.**
 
-You can modify any apk by unpacking it with `apktool d`, modifying the
-smali files and resources, then packing it back with `apktool b`, signing
+You can modify any apk by unpacking it with `apktool d`, editing the
+smali files and resources, packing it back with `apktool b`, signing
 it with the `apksigner` from android's SDK, and finally installing it
 with `apk install`.
 
-The [`patch-apk`][../patch-apk] will take a diff applying to an unpacked
-apk and do all those steps. By default, it will sign the apk with a
-throwaway key.
+The [`patch-apk`](patch-apk) script will take a diff applying to an
+unpacked apk and do all those steps. By default, it will sign the apk
+with a throwaway key.
 ```
 ./patch-apk old.apk new.apk < deeptesting-1.1.0.diff.md
 ```
-In this diff, change the `LOCALHOST:LOCALPORT`, `[[IMEI]]` and
-`[[SERIAL_ID]]` as appropriate.
+This patch applies to [OPPO Deeptesting 1.1.0][1] and will turn it
+into a regular app which doesn't need privileges and could be installed
+on the android emulator with `adb -e install`.
 
+Change the `LOCALHOST:LOCALPORT`, `[[IMEI]]` and `[[SERIAL_ID]]` as appropriate.
+
+[1]: https://www.apkmirror.com/apk/oppo/depth-testing/depth-testing-1-1-0-release/
+
+```
 diff -Nrup old/AndroidManifest.xml new/AndroidManifest.xml
 --- old/AndroidManifest.xml	2023-04-25 09:10:42.822927014 +0300
 +++ new/AndroidManifest.xml	2023-04-25 09:41:36.056842447 +0300
