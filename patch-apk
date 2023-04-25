@@ -1,0 +1,39 @@
+#! /bin/sh
+sdk_tools=/k/v/android-sdk/build-tools/33.0.0/
+android(){ PATH=$sdk_tools:$PATH "$@"; }
+tmpdir=$(mktemp -u)
+keystore=$tmpdir/keystore
+keyname=keyname
+keypass=${KEYPASS:-qwertyuiop}	# LOL
+keep=0
+apktool=apktool
+for a; do
+	case $1 in
+	*=*)	eval "$1" ;;
+	*)	set -- "$@" "$1" ;;
+	esac
+	shift
+done
+: ${sdk_tools:?sdk_tools}
+set -e
+old_apk=$1
+new_apk=${2:-${1%.apk}-new.apk}
+trap '[ "$keep" = 1 ] && echo "==> $tmpdir" || rm -fr "$tmpdir"' EXIT INT TERM
+mkdir -p "$tmpdir"
+printf '%s\n' "$tmpdir"
+dir=$tmpdir/d
+
+set -x
+apktool d -o "$dir" "$old_apk"
+(cd "$dir" && patch -sp1)
+apktool b -o "$new_apk" "$dir"
+export KEYPASS=$keypass
+if ! [ -r "$keystore" ]; then
+	keytool -genkey -v -keystore "$keystore" \
+		-alias "$keyname" -dname "CN=$keyname" \
+		-storepass:env KEYPASS \
+		-keyalg RSA -keysize 2048 -validity 10000 
+fi
+android zipalign -f 4 "$new_apk" "$tmpdir/apk" && mv "$tmpdir/apk" "$new_apk"
+android apksigner sign -ks "$keystore" --ks-pass=env:KEYPASS "$new_apk"
+printf '\nnew apk in %s\n' "$new_apk"
