@@ -100,8 +100,6 @@ sub decrypt_data {
 	$d = $1 if $d =~ /^\{\s*"(?:resps|params)"\s*:\s*"(.*)"\s*\}$/;
 	$d =~ s/\\u([0-9a-f]{4})/chr hex $1/ge;
 	my $r = substr $d, -15, 16, '';
-	warn decode_base64($d) =~ s/([^ -~])/sprintf"<%02x>", ord$1/gre;
-	warn "<@{[length decode_base64($d)]}> <$r>";
 	decrypt(decode_base64($d), params_key($r));
 }
 sub mk_postdata {
