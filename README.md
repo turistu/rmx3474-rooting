@@ -1,5 +1,3 @@
-# NOTE: Unfortunately, this doesn't seem to work anymore (since May 26 2023).
-
 ## [deeptesting-junk.pl](deeptesting-junk.pl)
 
 If you tried to use Realme's "deep testing" apk from [here](https://c.realme.com/in/post-details/1591008567903752192)
@@ -28,13 +26,6 @@ then try running again the deeptesting app on the phone.
 That should now work as described in their tutorials, and the app will reboot the phone
 into fastboot/bootloader mode from where you could unlock the bootloader from
 your PC with `fastboot flashing unlock`.
-
-If instead you get something like:
-```
-{"resultCode":-1006,"msg":"已成功提交审核，正在审核..."}
-```
-then don't waste your time waiting for the approval; it means that they actually
-"fixed" it, and this script is not worth anything anymore ;-(
 
 Before running the app, you could also try the script with the actual model and
 firmware version sent by the app, e.g.:

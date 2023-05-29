@@ -9,7 +9,7 @@ my %cfg = (
 
 	# these are used to build the json POST data
 
-	model => 'RMX3461',
+	model => 'RMX3471',
 		# ro.product.name [RMX3474EEA]
 	pcb => '',
 		# the serial number with 0x prepended [0x????????]
@@ -18,7 +18,7 @@ my %cfg = (
 		# /proc/oplusVersion/serialID **
 	imei => '00',
 		# the first IMEI
-	otaVersion => 'RMX3461_EX_11.C.03_2022082721280117',
+	otaVersion => 'RMX3471_11.A.38_0380_202205240113',
 		# ro.build.version.ota [RMX3474_11.?.??_????_202?????????]
 	clientStatus => 'i:0',
 	adbDvice => '',
@@ -28,7 +28,7 @@ my %cfg = (
 
 	client_id => '000000000000000',
 	sso_id => 0,
-	rpmodel => 'RMX3461',		# ro.product.model [RMX3474]
+	rpmodel => 'RMX3471',		# ro.product.model [RMX3474]
 	os_version => 'V1.0.0',		# ro.build_bak.version.opporom
 	rom_version => '',		# ro.build_bak.display.id
 	android_version => 31,		# Build.VERSION_SDK_INT [31]
@@ -111,6 +111,7 @@ sub query {
 	my %a = @_; $cfg{$_} = $a{$_} for keys %a;
 	require LWP::UserAgent;
 	my $ua = new LWP::UserAgent;
+	$ua->env_proxy(1);
 	$ua->send_te(undef);
 	$ua->default_headers(HTTP::Headers->new(
 		encypt => 1, # sic, without the 'r'
