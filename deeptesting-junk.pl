@@ -140,7 +140,7 @@ sub query {
 		if($cfg{cmd} eq 'checkApproveResult'){
 			warn "\nWARNING!!! dubious server reply -- the ".
 					"deeptesting app may not work!!!\n\n"
-				unless $d =~ m{"unlockCode":"[a-f0-9]{512}$pcb"}i;
+				unless $d =~ m{"unlockCode":"[a-f0-9]{512}$pcb"};
 		}
 	}else{
 		die "unexpected response from $cfg{url}$cfg{cmd}\n$d\n";
