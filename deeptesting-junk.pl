@@ -136,9 +136,9 @@ sub query {
 		$d = decrypt_data($1);
 		# warn "\n$d\n" if $verbose;
 		print "$d\n";
-		my $pcb = unpack 'H*', $cfg{pcb} =~ s/^0x//r;
 		if($cfg{cmd} eq 'checkApproveResult'){
-			warn "\nWARNING!!! dubious server reply -- the ".
+			my $pcb = unpack 'H*', $cfg{pcb} =~ s/^0x//r;
+			warn "\nWARNING!!! dubious reply -- the ".
 					"deeptesting app may not work!!!\n\n"
 				unless $d =~ m{"unlockCode":"[a-f0-9]{512}$pcb"};
 		}
