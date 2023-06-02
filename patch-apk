@@ -1,5 +1,10 @@
 #! /bin/sh
-sdk_tools=/path-to-android-sdk/build-tools/33.0.0/
+IFS=
+for f in $ANDROID_SDK_ROOT/build-tools/* $SDK_TOOLS; do
+	test -d "$f" && sdk_tools=$f
+done
+: ${sdk_tools:?please set the ANDROID_SDK_ROOT or SDK_TOOLS envvar}
+unset IFS
 android(){ PATH=$sdk_tools:$PATH "$@"; }
 tmpdir=$(mktemp -u)
 keystore=$tmpdir/keystore
@@ -14,7 +19,6 @@ for a; do
 	esac
 	shift
 done
-: ${sdk_tools:?sdk_tools}
 set -e
 old_apk=$1
 new_apk=${2:-${1%.apk}-new.apk}
@@ -26,6 +30,9 @@ dir=$tmpdir/d
 set -x
 apktool d -o "$dir" "$old_apk"
 (cd "$dir" && patch -sp1)
+for f in "$dir/assets/"*.pem; do
+	openssl x509 -in "$f" -outform DER -out "${f%.pem}.crt"
+done
 apktool b -o "$new_apk" "$dir"
 export KEYPASS=$keypass
 if ! [ -r "$keystore" ]; then
