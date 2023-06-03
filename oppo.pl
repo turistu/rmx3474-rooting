@@ -4,12 +4,14 @@ use Digest::MD5 qw(md5 md5_base64);
 use Crypt::Rijndael;
 use Crypt::OpenSSL::RSA;
 use Getopt::Std;
+use IO::Socket::SSL;
+use IO::Socket::SSL::Utils;
 
 my (%key, %opt);
 getopts 'stk:', \%opt or die q{
 usage:
   $0 -s
-    server mode, would listen on port 7777 on all interfaces
+    server mode, would listen on port 7777 on all ipv4 interfaces
   $0 -k /path/to/unpacked_apk/assets/lk_unlock.crt [key value ...]
     client mode, possible options:
        udid [IMEI] chipId 0x[SERIALNO]
@@ -48,8 +50,6 @@ sub load_data {
 }
 
 sub ssl_connect {
-	use IO::Socket::SSL;
-	use IO::Socket::SSL::Utils;
 	new IO::Socket::SSL(@_) // die "ssl_connect(@_): $!: $SSL_ERROR\n";
 }
 sub ssl_accept {
@@ -84,7 +84,6 @@ sub unbase64($) { decode_base64($_[0]) }
 
 sub mk_key_header {
 	my ($ek, $pk) = @_;
-	require Crypt::OpenSSL::RSA;
 	my $k = Crypt::OpenSSL::RSA->new_public_key($pk);
 	$k->use_pkcs1_padding;
 	base64($k->encrypt(base64($ek)));
@@ -132,11 +131,10 @@ sub request {
 	}else{
 		$pubkey = $key{oppo_pubkey};
 	}
-	# warn $pubkey;
 	# Crypt::OpenSSL::RSA->new_public_key($pubkey);
 	my $ek = 'x' x 32;	# yes, this is supposed to be random
 	my $data = mk_data $ek, 'params', map {$_, $cfg{$_}} qw(
-		chipId udid model otaVersion clientLockStatus operator token
+		chipId udid model otaVersion token clientLockStatus operator
 	);
 	my $key_header = mk_key_header($ek, $pubkey);
 	my $sock = ssl_connect @ssl;
@@ -165,10 +163,9 @@ sub request {
 }
 sub reply {
 	my ($sock, $ek, @reply) = @_;
-	my $data = mk_data($ek, "resps",
-		[code => \200, message => 'SUCCESS', data => [@reply]]);
+	my $data = mk_data($ek, "resps", [code => \200, message => 'SUCCESS',
+		@reply ? (data => [@reply]) : ()]);
 	warn ">>> ", decrypt_data($ek, $data), "\n";
-	# warn ">> $data\n";
 	syswrite $sock, join "\r\n",
 		"HTTP/1.1 200 OK",
 		"Content-Type: application/json; charset=utf-8",
@@ -176,13 +173,12 @@ sub reply {
 		"", $data;
 }
 sub server {
+	my $sock = ssl_accept('0.0.0.0:7777');
 	my $priv_key = Crypt::OpenSSL::RSA->new_private_key($key{private_key});
 	$priv_key->use_pkcs1_padding;
-	my $sock = ssl_accept('0.0.0.0:7777');
 	while(1){
 		$/ = "\r\n\r\n";
 		last unless defined($_ = <$sock>);
-		# warn "<< $_";
 		my (%h, $data, $req);
 		for(split /\r\n/, $_){
 			if(/^(\w[\w-]*): *(.*)/){ $h{$1 =~ y/A-Z-/a-z_/r} = $2 }

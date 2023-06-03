@@ -10,12 +10,15 @@ model			ro.product.name
 udid			IMEI 1
 chipId			/proc/oppoVersion/serialID
 otaVersion		ro.build.version.ota
+token			login token obtained from com.heytap.usercenter
 clientLockStatus	0
 operator		ro.oppo.operator
 ```
 The way the request and replies are encrypted (better said obfuscated)
-are also different from the realme apk -- see the [`oppo.pl`](oppo.pl) script
-which implements both the client and the server part.
+are also different from the realme apk -- see the [`oppo.pl`](oppo.pl)
+script which implements both the client and the server part.
+
+#### Applying this patch
 
 You can modify any apk by unpacking it with `apktool d`, editing the
 smali files and resources, packing it back with `apktool b`, signing
@@ -33,15 +36,17 @@ This patch applies to [OPPO Deeptesting 1.1.0][1] and will turn it
 into a regular app which doesn't need privileges and could also be
 installed on the android emulator with `adb -e install`.
 
+#### Playing with the patched apk
+
 In order to simulate a fastboot unlocking procedure with the patched
 apk, change `192.168.0.133` in this patch to an actual external address
 reachable from the phone or emulator and run the [oppo.pl script](oppo.pl)
 with `perl oppo.pl -s`.
 
-The apk will go through all the steps (change the oem unlocking flag,
-call `fastbootUnlock`, reboot), except that --since it's not a
-privileged signed app and **cannot** actually do any of those actions--
-it will just log error messages instead:
+The apk will go through all the steps (get the serial number and imei,
+change the oem unlock flag, call `fastbootUnlock`, reboot), except that
+--since it's not a privileged signed app and **cannot** actually do any
+of those actions-- it will just log error messages instead:
 ```
 05-28 09:19:08.824  8735  8769 E XXXX    : FAKE proc/oppoVersion/serialID = [[SERIAL_ID]]
 05-28 09:19:08.868  8735  8735 E XXXX    : FAKE 1 OplusOSTelephonyManager->oplusIsSimLockedEnabled() = 0
@@ -273,8 +278,24 @@ diff -Nrup orig/smali/com/coloros/deeptesting/service/RequestService.smali modd/
      iput-object p2, p0, Lcom/coloros/deeptesting/service/RequestService;->f:Ljava/lang/String;
 diff -Nrup orig/smali/com/heytap/usercenter/accountsdk/AccountAgent.smali modd/smali/com/heytap/usercenter/accountsdk/AccountAgent.smali
 --- orig/smali/com/heytap/usercenter/accountsdk/AccountAgent.smali	2023-06-02 03:52:01.661895170 +0300
-+++ modd/smali/com/heytap/usercenter/accountsdk/AccountAgent.smali	2023-06-02 04:22:17.047139220 +0300
-@@ -131,6 +131,15 @@
++++ modd/smali/com/heytap/usercenter/accountsdk/AccountAgent.smali	2023-06-03 22:45:14.741506755 +0300
+@@ -73,6 +73,15 @@
+ 
+ .method public static getToken(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+     .locals 1
++    invoke-static {p1}, Lod/log;->s(Ljava/lang/String;)V
++    const-string p0, "FAKE getToken() = [FAKE_TOKEN]"
++    invoke-static {p0}, Lod/log;->s(Ljava/lang/String;)V
++    const-string p0, "[FAKE_TOKEN]"
++    return-object p0
++.end method
++
++.method public static getToken_DISABLED(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
++    .locals 1
+ 
+     .line 1
+     invoke-static {p0}, Lcom/heytap/usercenter/accountsdk/AccountAgent;->initContextIfNeeded(Landroid/content/Context;)V
+@@ -131,6 +140,15 @@
  
  .method public static isLogin(Landroid/content/Context;Ljava/lang/String;)Z
      .locals 1
