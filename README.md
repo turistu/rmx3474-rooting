@@ -1,4 +1,4 @@
-# NOTE: Unfortunately, this doesn't seem to work anymore (since May 26-31 2023).
+# WARNING: Since May 26-31 2023, this only seems to work with some phone models.
 
 ## [deeptesting-junk.pl](deeptesting-junk.pl)
 
