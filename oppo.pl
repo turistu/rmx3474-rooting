@@ -3,6 +3,7 @@ use MIME::Base64;
 use Digest::MD5 qw(md5 md5_base64);
 use Crypt::Rijndael;
 use Crypt::OpenSSL::RSA;
+use Crypt::OpenSSL::X509;
 use Getopt::Std;
 use IO::Socket::SSL;
 use IO::Socket::SSL::Utils;
@@ -21,9 +22,8 @@ usage:
 
 load_data();
 if($opt{k}){
-	open my $f, '-|', qw(openssl x509 -pubkey -noout -in), $opt{k};
-	local $/; $key{oppo_pubkey} = <$f>;
-	close($f) or exit 1;
+	$key{oppo_pubkey} = Crypt::OpenSSL::X509->new_from_file(
+		$opt{k}, Crypt::OpenSSL::X509::FORMAT_ASN1)->pubkey;
 }
 if($opt{s}){
 	server();
