@@ -17,7 +17,7 @@ usage:
     client mode, possible options:
        udid [IMEI] chipId 0x[SERIALNO]
        cmd {apply-unlock|check-approve-result|...}
-       url [...] model [...] otaVersion [...]
+       url [...] model [...] otaVersion [...] token [...]
 };
 
 load_data();
@@ -176,9 +176,8 @@ sub server {
 	my $sock = ssl_accept('0.0.0.0:7777');
 	my $priv_key = Crypt::OpenSSL::RSA->new_private_key($key{private_key});
 	$priv_key->use_pkcs1_padding;
-	while(1){
-		$/ = "\r\n\r\n";
-		last unless defined($_ = <$sock>);
+	local $/ = "\r\n\r\n";
+	while(<$sock>){
 		my (%h, $data, $req);
 		for(split /\r\n/, $_){
 			if(/^(\w[\w-]*): *(.*)/){ $h{$1 =~ y/A-Z-/a-z_/r} = $2 }
