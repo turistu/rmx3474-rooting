@@ -15,6 +15,8 @@ perl deeptesting-junk.pl pcb 0xHHHHHHHH imei DDDDDDDDDDDDDDD cmd applyLkUnlock
 Also notice that --despite the `pcb` name-- it really is the serial number, not the
 pcb number from the engineermode app! [^1]
 
+**Do NOT edit the script to change the `model` or `otaVersion` to the ones from your phone**; that will defeat the very purpose of this script: namely, to submit the unlock request using *your* serial + imei and a *supported* phone model.
+
 If the answer is `{"resultCode":0,"msg":"SUCCESS"}`, continue with
 ```
 perl deeptesting-junk.pl pcb 0xHHHHHHHH imei DDDDDDDDDDDDDDD cmd checkApproveResult
@@ -39,6 +41,29 @@ perl deeptesting-junk.pl pcb 0xHHHHHHHH imei DDDDDDDDDDDDDDD cmd checkApproveRes
 This worked for me, at some point in February 2023, on a Realme 9 5G RMX3474, the
 Android 12 GDPR variant of the firmware.
 
+-----
+
+If instead of that all you get is:
+```
+{"resultCode":-1006,"msg":"已成功提交审核，正在审核..."}
+```
+(even when retrying the `checkApproveResult` after a couple of minutes), that means
+that either their server doesn't work, or they don't accept your serial number or IMEI.
+
+In that case (or if the deeptesting app doesn't work, despite a succesful answer) please
+open an issue, including the output of:
+```
+adb shell pm has-feature oppo.version.exp
+adb shell getprop ro.product.name
+adb shell getprop ro.product.model
+adb shell getprop ro.build.version.ota
+```
+
+I cannot guarantee that that will help, but there still are some leads which could be
+investigated.
+
+-----
+
 The `deeptesting-junk.pl` script does nothing else than simulate the https requests
 performed by the deeptesting app to their `lkf.realmemobile.com` server; it does not
 save or send any data anywhere else.
@@ -50,8 +75,6 @@ On windows, the [Strawberry Perl](https://strawberryperl.com/) distribution incl
 those modules by default; to prevent the windows console from mangling the output, set
 its code page to utf-8 with `chcp 65001` before running the script.
 
-[^1]: The app is getting that value from the [`/proc/oplusVersion/serialID`][serial_id] file.
-If you instead try with something that looks like a pcb number, they place your request in
-a queue and make you wait forever for an approval which will never come.
+[^1]: The app is getting that value from the [`/proc/oplusVersion/serialID`][serial_id] file. The serial number should an 8-digit hex number; if the serial number has a different format, then this script will probably NOT work, and you will get the -1006 "please wait till the hell freezes over" result code.
 
 [serial_id]: https://github.com/realme-kernel-opensource/realme_9pro-5G_9-5G_V25_Q5-AndroidT-vendor-source/blob/9b580d19cd823d93177691661bba365faba23096/vendor/oplus/kernel/system/oplus_project/qcom/oplus_project.c#L362

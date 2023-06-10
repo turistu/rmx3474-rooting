@@ -6,10 +6,11 @@ my %cfg = (
 	cmd => 'acquireClientStatus',
 	url => 'https://lkf.realmemobile.com/realme/v1/',
 		# lkf. if oppo.version.exp feature, lk. otherwise
+	verify_hostname => 1,
 
 	# these are used to build the json POST data
 
-	model => 'RMX3471',
+	model => 'RMX3461',
 		# ro.product.name [RMX3474EEA]
 	pcb => '',
 		# the serial number with 0x prepended [0x????????]
@@ -18,7 +19,7 @@ my %cfg = (
 		# /proc/oplusVersion/serialID **
 	imei => '00',
 		# the first IMEI
-	otaVersion => 'RMX3471_11.A.38_0380_202205240113',
+	otaVersion => 'RMX3461_EX_11.C.03_2022082721280117',
 		# ro.build.version.ota [RMX3474_11.?.??_????_202?????????]
 	clientStatus => 'i:0',
 	adbDvice => '',
@@ -28,7 +29,7 @@ my %cfg = (
 
 	client_id => '000000000000000',
 	sso_id => 0,
-	rpmodel => 'RMX3471',		# ro.product.model [RMX3474]
+	rpmodel => 'RMX3461',		# ro.product.model [RMX3474]
 	os_version => 'V1.0.0',		# ro.build_bak.version.opporom
 	rom_version => '',		# ro.build_bak.display.id
 	android_version => 31,		# Build.VERSION_SDK_INT [31]
@@ -110,7 +111,9 @@ sub mk_postdata {
 sub query {
 	my %a = @_; $cfg{$_} = $a{$_} for keys %a;
 	require LWP::UserAgent;
-	my $ua = new LWP::UserAgent;
+	my $ua = new LWP::UserAgent(
+		ssl_opts => { verify_hostname => $cfg{verify_hostname} },
+	);
 	$ua->env_proxy(1);
 	$ua->send_te(undef);
 	$ua->default_headers(HTTP::Headers->new(
@@ -123,9 +126,10 @@ sub query {
 	my $c = mk_postdata;
 	$c =~ /:"(.*)"/;
 	warn "params\t", decrypt_data($1), "\n" if $verbose;
-	die "unknown cmd '$cfg{cmd}'; it should be one of:\n  @cmds\n"
+	warn "unknown cmd '$cfg{cmd}'; it should be one of:\n  @cmds\n"
 		unless grep $cfg{cmd} eq $_, @cmds;
 	my $rsp = $ua->post("$cfg{url}$cfg{cmd}",
+		'Host' => 'lkf.realmemobile.com',
 		'Content-Type' => 'application/json; charset=utf-8',
 		Content => $c);
 	die "post($cfg{url}$cfg{cmd}): ", $rsp->status_line, "\n"
