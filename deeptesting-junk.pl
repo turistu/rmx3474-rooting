@@ -129,7 +129,6 @@ sub query {
 	warn "unknown cmd '$cfg{cmd}'; it should be one of:\n  @cmds\n"
 		unless grep $cfg{cmd} eq $_, @cmds;
 	my $rsp = $ua->post("$cfg{url}$cfg{cmd}",
-		'Host' => 'lkf.realmemobile.com',
 		'Content-Type' => 'application/json; charset=utf-8',
 		Content => $c);
 	die "post($cfg{url}$cfg{cmd}): ", $rsp->status_line, "\n"
