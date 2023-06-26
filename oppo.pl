@@ -62,7 +62,7 @@ sub ssl_accept {
 		SSL_key => PEM_string2key($key{private_key}),
 		ReuseAddr => 1,
 	) // die "ssl_listen($addr): $SSL_ERROR\n";
-	$SIG{CLD} = sub { wait };
+	$SIG{CHLD} = sub { wait };
 	while(1){
 		if(my $sock = $srv->accept) {
 			defined(my $pid = fork) or die "fork: $!\n";
