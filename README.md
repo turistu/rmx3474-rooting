@@ -75,6 +75,6 @@ On windows, the [Strawberry Perl](https://strawberryperl.com/) distribution incl
 those modules by default; to prevent the windows console from mangling the output, set
 its code page to utf-8 with `chcp 65001` before running the script.
 
-[^1]: The app is getting that value from the [`/proc/oplusVersion/serialID`][serial_id] file. The serial number should an 8-digit hex number; if the serial number has a different format, then this script will probably NOT work, and you will get the -1006 "please wait till the hell freezes over" result code.
+[^1]: The app is getting that value from the [`/proc/oplusVersion/serialID`][serial_id] file. The serial number should be an 8-digit hex number; if the serial number has a different format, then this script will probably NOT work, and you will get the -1006 "please wait till the hell freezes over" result code.
 
 [serial_id]: https://github.com/realme-kernel-opensource/realme_9pro-5G_9-5G_V25_Q5-AndroidT-vendor-source/blob/9b580d19cd823d93177691661bba365faba23096/vendor/oplus/kernel/system/oplus_project/qcom/oplus_project.c#L362
