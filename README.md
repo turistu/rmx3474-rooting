@@ -1,4 +1,4 @@
-# WARNING: Since May 26-31 2023, this only seems to work with some phone models.
+# WARNING: Since May 26-31 2023, this does not seem to work anymore
 
 ## [deeptesting-junk.pl](deeptesting-junk.pl)
 
@@ -25,7 +25,7 @@ If the answer is somethink like
 ```
 {"resultCode":0,"msg":"SUCCESS","data":{"unlockCode":"0345af...lots of hexdigits"}}
 ```
-(without any warnings) then try running again the deeptesting app on the phone.
+(**without any warnings**) then try running again the deeptesting app on the phone.
 
 That should now work as described in their tutorials, and the app will reboot the phone
 into fastboot/bootloader mode from where you could unlock the bootloader from

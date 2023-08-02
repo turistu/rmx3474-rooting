@@ -141,9 +141,12 @@ sub query {
 		print "$d\n";
 		if($cfg{cmd} eq 'checkApproveResult'){
 			my $pcb = unpack 'H*', $cfg{pcb} =~ s/^0x//r;
-			warn "\nWARNING!!! dubious reply -- the ".
+			unless($d =~ m{"unlockCode":"[a-f0-9]{512}$pcb"}){
+				warn "\n", pack('H*', $1) =~ s/[^ -~]/./gr, "\n"
+					if $d =~ m{"unlockCode":"([^"]+)"};
+				warn "\nWARNING!!! dubious reply -- the ".
 					"deeptesting app may not work!!!\n\n"
-				unless $d =~ m{"unlockCode":"[a-f0-9]{512}$pcb"};
+			}
 		}
 	}else{
 		die "unexpected response from $cfg{url}$cfg{cmd}\n$d\n";
