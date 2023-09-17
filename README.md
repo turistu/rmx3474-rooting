@@ -1,6 +1,6 @@
-# WARNING: Since May 26-31 2023, this does not seem to work anymore
-
 ## [deeptesting-junk.pl](deeptesting-junk.pl)
+
+# WARNING: Since May 26-31 2023, this does not seem to work anymore
 
 If you tried to use Realme's "deep testing" apk from [here](https://c.realme.com/in/post-details/1591008567903752192)
 and got that nasty "This phone model does not support deep testing." screen,
